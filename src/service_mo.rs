@@ -65,7 +65,7 @@ where
         //
 
         let fut = (self.f)(req);
-        let logging_future = LoggingFuture { inner: fut };
+        LoggingFuture { inner: fut }
 //        fut.and_then(|result| async move {println!("Ready!"); Ok(())});
         /*
         fut.then(|result| {
@@ -79,7 +79,6 @@ where
             }
         });
         */
-        logging_future
     }
 }
 
