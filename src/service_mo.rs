@@ -9,7 +9,6 @@ use hyper::{Request, Response};
 
 use crate::future_mo::LoggingFuture;
 
-use futures::future::TryFutureExt;
 /// Create a `Service` from a function.
 ///
 /// # Example
