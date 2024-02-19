@@ -1,5 +1,5 @@
 [package]
-name = "srv1"
+name = "server-hyper-1"
 version = "0.1.0"
 edition = "2021"
 
