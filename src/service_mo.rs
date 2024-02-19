@@ -7,6 +7,9 @@ use hyper::body::Body;
 use hyper::service::Service;
 use hyper::{Request, Response};
 
+use crate::future_mo::LoggingFuture;
+
+use futures::future::TryFutureExt;
 /// Create a `Service` from a function.
 ///
 /// # Example
@@ -54,7 +57,7 @@ where
 {
     type Response = crate::Response<ResBody>;
     type Error = E;
-    type Future = Ret;
+    type Future = LoggingFuture<Ret>;
 
     // do extra work layer here
     fn call(&self, mut req: Request<ReqBody>) -> Self::Future {
@@ -62,7 +65,22 @@ where
         // check if accepted
         //
 
-        (self.f)(req)
+        let fut = (self.f)(req);
+        let logging_future = LoggingFuture { inner: fut };
+//        fut.and_then(|result| async move {println!("Ready!"); Ok(())});
+        /*
+        fut.then(|result| {
+            match result {
+                Ok(res) => {
+                    let mut res = crate::Response::from(res);
+                    //res.headers_mut().insert("x-service", "service_fn");
+                    Ok(result)
+                }
+                Err(e) => Err(result),
+            }
+        });
+        */
+        logging_future
     }
 }
 
