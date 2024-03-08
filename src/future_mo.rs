@@ -5,14 +5,14 @@ use std::task::Context;
 use std::pin::Pin;
 
 
-pin_project!{
-pub struct LoggingFuture<F> {
+pin_project! {
+  pub struct InterceptorFuture<F> {
     #[pin]
     pub inner: F,
-}
+  }
 }
 
-impl<F> Future for LoggingFuture<F>
+impl<F> Future for InterceptorFuture<F>
 where
     F: Future,
 {

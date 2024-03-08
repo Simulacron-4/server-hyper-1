@@ -7,7 +7,7 @@ use hyper::body::Body;
 use hyper::service::Service;
 use hyper::{Request, Response};
 
-use crate::future_mo::LoggingFuture;
+use crate::future_mo::InterceptorFuture;
 
 /// Create a `Service` from a function.
 ///
@@ -56,7 +56,7 @@ where
 {
     type Response = crate::Response<ResBody>;
     type Error = E;
-    type Future = LoggingFuture<Ret>;
+    type Future = InterceptorFuture<Ret>;
 
     // do extra work layer here
     fn call(&self, mut req: Request<ReqBody>) -> Self::Future {
@@ -65,7 +65,7 @@ where
         //
 
         let fut = (self.f)(req);
-        LoggingFuture { inner: fut }
+        InterceptorFuture { inner: fut }
 //        fut.and_then(|result| async move {println!("Ready!"); Ok(())});
         /*
         fut.then(|result| {
