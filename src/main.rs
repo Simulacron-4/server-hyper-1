@@ -1,16 +1,19 @@
 mod service_mo;
 mod future_mo;
+mod support;
+
 use crate::service_mo::service_fn;
 
 use std::convert::Infallible;
 use std::net::SocketAddr;
+use crate::support::TokioIo;
 
 use http_body_util::Full;
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
 use hyper::{Request, Response};
-use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
+use log::info;
 
 use crate::service_mo::RequestId;
 
@@ -23,10 +26,14 @@ async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Byte
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    simple_logger::init().unwrap();
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     // We create a TcpListener and bind it to 127.0.0.1:3000
     let listener = TcpListener::bind(addr).await?;
+
+    info!("Listening on http://{}", addr);
 
     // We start a loop to continuously accept incoming connections
     loop {
