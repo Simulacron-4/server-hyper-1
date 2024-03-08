@@ -1,16 +1,16 @@
-use pin_project::pin_project;
+use pin_project_lite::pin_project;
 use std::future::Future;
 use std::task::Poll;
 use std::task::Context;
 use std::pin::Pin;
 
 
-#[pin_project]
+pin_project!{
 pub struct LoggingFuture<F> {
     #[pin]
     pub inner: F,
 }
-
+}
 
 impl<F> Future for LoggingFuture<F>
 where

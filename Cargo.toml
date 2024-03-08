@@ -9,7 +9,6 @@ edition = "2021"
 http-body-util = "0"
 hyper = { version = "1", features = ["full"] }
 log = "0"
-pin-project = "1"
 pin-project-lite = "0"
 simple_logger = "4"
 tokio = { version = "1", features = ["full"] }
