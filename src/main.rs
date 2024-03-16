@@ -1,6 +1,7 @@
 mod service_mo;
 mod future_mo;
 mod support;
+mod load_files;
 
 use crate::service_mo::service_fn;
 
@@ -16,11 +17,15 @@ use tokio::net::TcpListener;
 use log::info;
 
 use crate::service_mo::RequestId;
+use crate::load_files::serve_file;
 
 async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
     let req_id = req.extensions().get::<RequestId>().unwrap();
+    Ok(serve_file(req).await?)
+    /*
     let result = format!("Hello, World! req_id: {}", req_id.id);
     Ok(Response::new(Full::new(Bytes::from(result))))
+    */
     //Ok(Response::new(Full::new(Bytes::from_static(b"Hello, World!"))))
 }
 
