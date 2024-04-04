@@ -2,10 +2,10 @@ mod service_mo;
 mod future_mo;
 mod support;
 mod load_files;
+mod typedef;
 
 use crate::service_mo::service_fn;
 
-use std::convert::Infallible;
 use std::net::SocketAddr;
 use crate::support::TokioIo;
 
@@ -18,10 +18,11 @@ use log::info;
 
 use crate::service_mo::RequestId;
 use crate::load_files::serve_file;
+use crate::typedef::GenericError;
 
-async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
     let req_id = req.extensions().get::<RequestId>().unwrap();
-    Ok(serve_file(req).await?)
+    serve_file(req).await
     /*
     let result = format!("Hello, World! req_id: {}", req_id.id);
     Ok(Response::new(Full::new(Bytes::from(result))))

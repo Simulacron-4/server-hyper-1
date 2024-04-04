@@ -3,11 +3,11 @@ use walkdir::WalkDir;
 use mime_guess::Mime;
 use std::collections::HashMap;
 
-use std::convert::Infallible;
 use hyper::body::Bytes;
 use http_body_util::Full;
 use hyper::{Request, Response};
 use lazy_static::lazy_static;
+use crate::typedef::GenericError;
 
 pub struct FileEntry {
   pub size: u64,
@@ -43,7 +43,7 @@ lazy_static! {
   pub static ref FILES: HashMap<String, FileEntry> = load_files("html");
 }
 
-pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
+pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
     let path = match req.uri().path() {
       "/" => "/index.html",
       _ => req.uri().path(),
@@ -65,11 +65,5 @@ pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<
       } else {
         file.mime_type.essence_str()
       })
-      .body(Full::new(Bytes::from_static(file.content))).unwrap())
-      /*
-      .map_err(|e| {
-        log::error!("Error: {}", e);
-        e
-      })
-      */
+      .body(Full::new(Bytes::from_static(file.content)))?)
 }
