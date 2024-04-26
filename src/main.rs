@@ -3,6 +3,7 @@ mod future_mo;
 mod support;
 mod load_files;
 mod typedef;
+mod box_pack;
 
 use crate::service_mo::service_fn;
 
@@ -21,7 +22,7 @@ use crate::load_files::serve_file;
 use crate::typedef::GenericError;
 
 async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
-    let req_id = req.extensions().get::<RequestId>().unwrap();
+    let _req_id = req.extensions().get::<RequestId>().unwrap();
     serve_file(req).await
     /*
     let result = format!("Hello, World! req_id: {}", req_id.id);

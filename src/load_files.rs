@@ -67,3 +67,8 @@ pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<
       })
       .body(Full::new(Bytes::from_static(file.content)))?)
 }
+
+pub fn is_file_in_memory(path: &str) -> bool {
+  FILES.contains_key(path)
+}
+
