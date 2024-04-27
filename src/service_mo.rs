@@ -8,7 +8,6 @@ use hyper::service::Service;
 use hyper::{Request, Response};
 
 use crate::future_mo::InterceptorFuture;
-use crate::box_pack::BoxedFuture;
 
 /// Create a `Service` from a function.
 ///
@@ -47,7 +46,6 @@ pub struct ServiceFn<F, R> {
     _req: PhantomData<fn(R)>,
 }
 
-use core::pin::Pin;
 impl<F, ReqBody, Ret, ResBody, E> Service<Request<ReqBody>> for ServiceFn<F, ReqBody>
 where
     F: Fn(Request<ReqBody>) -> Ret,
