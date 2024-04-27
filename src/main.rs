@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             if let Err(err) = http1::Builder::new()
                 // `service_fn` converts our function in a `Service`
                 //.serve_connection(io, service_fn(hello))
-                .serve_connection(io, ServiceWrapper {})
+                .serve_connection(io, ServiceWrapper { f: hello})
                 .await
             {
                 println!("Error serving connection: {:?}", err);
