@@ -69,6 +69,7 @@ pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<
 }
 
 pub fn is_file_in_memory(path: &str) -> bool {
+  log::info!("is_file_in_memory: {}", path);
   FILES.contains_key(path)
 }
 

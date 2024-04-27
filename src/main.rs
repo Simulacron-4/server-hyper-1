@@ -4,6 +4,7 @@ mod support;
 mod load_files;
 mod typedef;
 mod box_pack;
+mod oi_service;
 
 use crate::service_mo::service_fn;
 
@@ -20,14 +21,13 @@ use log::info;
 use crate::service_mo::RequestId;
 use crate::load_files::serve_file;
 use crate::typedef::GenericError;
+use crate::oi_service::ServiceWrapper;
 
 async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
-    let _req_id = req.extensions().get::<RequestId>().unwrap();
-    serve_file(req).await
-    /*
+    let req_id = req.extensions().get::<RequestId>().unwrap();
+    //serve_file(req).await
     let result = format!("Hello, World! req_id: {}", req_id.id);
     Ok(Response::new(Full::new(Bytes::from(result))))
-    */
     //Ok(Response::new(Full::new(Bytes::from_static(b"Hello, World!"))))
 }
 
@@ -55,7 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             // Finally, we bind the incoming connection to our `hello` service
             if let Err(err) = http1::Builder::new()
                 // `service_fn` converts our function in a `Service`
-                .serve_connection(io, service_fn(hello))
+                //.serve_connection(io, service_fn(hello))
+                .serve_connection(io, ServiceWrapper {})
                 .await
             {
                 println!("Error serving connection: {:?}", err);

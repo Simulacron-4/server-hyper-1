@@ -52,48 +52,23 @@ impl<F, ReqBody, Ret, ResBody, E> Service<Request<ReqBody>> for ServiceFn<F, Req
 where
     F: Fn(Request<ReqBody>) -> Ret,
     ReqBody: Body,
-    Ret: Future<Output = Result<Response<ResBody>, E>> + 'static + Send,
+    Ret: Future<Output = Result<Response<ResBody>, E>> + Send,
     E: Into<Box<dyn StdError + Send + Sync>>,
     ResBody: Body,
 {
     type Response = crate::Response<ResBody>;
     type Error = E;
-    type Future = InterceptorFuture<Pin<Box<dyn Future<Output = Result<Response<ResBody>, E>> + Send>>>;
+    type Future = InterceptorFuture<Ret>;
 
     // do extra work layer here
     fn call(&self, mut req: Request<ReqBody>) -> Self::Future {
         req.extensions_mut().insert(RequestId { id: 42 });
-        // check if accepted
-        //
-
-        let fut = if is_file_in_memory(req.uri().path()) {
-          //serve_file(req).to_boxed()
-          (self.f)(req).to_boxed()
-          //  (self.f)(req)
-        } else {
-          (self.f)(req).to_boxed()
-        };
+        let fut = (self.f)(req);
 
         InterceptorFuture { inner: fut }
     }
 }
 
-
-use crate::load_files::{ serve_file, is_file_in_memory };
-use crate::typedef::GenericError;
-use hyper::body::Bytes;
-use http_body_util::Full;
-
-async fn wrapper(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
-    if is_file_in_memory(req.uri().path()) {
-        serve_file(req).await
-    } else {
-        Ok(Response::builder()
-            .status(404)
-            .body(Full::new(Bytes::from_static(b"Not Found")))
-            .unwrap())
-    } 
-}
 
 #[derive(Clone)]
 pub struct RequestId {
