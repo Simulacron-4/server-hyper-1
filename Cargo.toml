@@ -16,3 +16,11 @@ tokio = { version = "1", features = ["full"] }
 mime_guess = "2"
 walkdir = "2"
 
+# websockets
+#hyper-tungstenite = { path = "../WebSocket/hyper-tungstenite-rs" }
+#hyper-tungstenite = { git = "https://github.com/de-vri-es/hyper-tungstenite-rs.git", branch = "main" }
+hyper-tungstenite = "0.13"
+futures = "0.3"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+

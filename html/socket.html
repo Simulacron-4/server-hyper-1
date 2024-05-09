@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Socket</title>
+    <script>
+      function prepare_socket(url) {
+        var ws = new WebSocket(url, ["chat"]);
+        ws.onopen = function() {
+          console.log(`Connected to ${url}`);
+          ws.send("Hello, Web Socket!");
+        };
+        ws.onmessage = function(evt) {
+          console.log("Received: " + evt.data);
+        };
+        ws.onclose = function() {
+          console.log(`Closed ${url}`);
+        };
+        return ws;
+      }
+
+      function init() {
+        console.log("Initializing...");
+        document.getElementById("wbs3000").addEventListener("click", function() {
+          prepare_socket("ws://localhost:3000/socket");
+        });
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <h1>Press the button to communicate over web socket</h1>
+    <button id="wbs3000">Web Socket 3000</button>
+  </body>
+</html>

@@ -5,6 +5,7 @@ mod load_files;
 mod typedef;
 mod box_pack;
 mod oi_service;
+mod websocket;
 
 use std::net::SocketAddr;
 use crate::support::TokioIo;
@@ -23,13 +24,21 @@ use crate::oi_service::ServiceWrapper;
 async fn hello(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
     let req_id = req.extensions().get::<RequestId>().unwrap();
     let result = format!("Hello, World! req_id: {}", req_id.id);
-    Ok(Response::new(Full::new(Bytes::from(result))))
+    if hyper_tungstenite::is_upgrade_request(&req) {
+      websocket::handle_websocket_request(req).await
+    } else {
+      Ok(Response::new(Full::new(Bytes::from(result))))
+    }
     //Ok(Response::new(Full::new(Bytes::from_static(b"Hello, World!"))))
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    simple_logger::init().unwrap();
+    simple_logger::init_with_env().unwrap();
+
+    // next two lines are for tracing
+    let subscriber = tracing_subscriber::FmtSubscriber::new();
+    tracing::subscriber::set_global_default(subscriber)?;
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
@@ -53,6 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 // `service_fn` converts our function in a `Service`
                 //.serve_connection(io, service_fn(hello))
                 .serve_connection(io, ServiceWrapper::new(hello))
+                .with_upgrades()
                 .await
             {
                 println!("Error serving connection: {:?}", err);

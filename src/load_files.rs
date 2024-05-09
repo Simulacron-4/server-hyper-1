@@ -7,6 +7,7 @@ use hyper::body::Bytes;
 use http_body_util::Full;
 use hyper::{Request, Response};
 use lazy_static::lazy_static;
+use log::{info, debug};
 use crate::typedef::GenericError;
 
 pub struct FileEntry {
@@ -43,9 +44,12 @@ lazy_static! {
   pub static ref FILES: HashMap<String, FileEntry> = load_files("html");
 }
 
+const INDEX: &str = "/index.html";
+
 pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, GenericError> {
+  info!("serve_file: {}", req.uri().path());
     let path = match req.uri().path() {
-      "/" => "/index.html",
+      "/" => INDEX,
       _ => req.uri().path(),
     };
     let file = match FILES.get(path) {
@@ -57,7 +61,7 @@ pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<
           .unwrap());
       }
     };
-    log::info!("mime_type: {}", file.mime_type);
+    info!("mime_type: {}", file.mime_type);
     Ok(Response::builder()
       .status(200)
       .header("Content-Type", if file.mime_type.essence_str() == "text/html" {
@@ -69,7 +73,11 @@ pub async fn serve_file(req: Request<hyper::body::Incoming>) -> Result<Response<
 }
 
 pub fn is_file_in_memory(path: &str) -> bool {
-  log::info!("is_file_in_memory: {}", path);
-  FILES.contains_key(path)
+  let result = match path {
+    "/" => FILES.contains_key(INDEX),
+    _ => FILES.contains_key(path),
+  };
+  debug!("is_file_in_memory: {}={}", path, if result { "yes" } else { "no" });
+  result
 }
 
